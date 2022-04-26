@@ -1,0 +1,33 @@
+openssl req -new -sha256 -nodes -out \wildcard.domain.az.csr -newkey rsa:2048 -keyout \wildcard.domain.az.key -config <(
+
+cat <<-EOF
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
+\
+[ dn ]
+C=AZ
+ST=Baku
+L=Baku
+O=Pasha Technology LLC
+OU=IT
+emailAddress=admin@domain.az
+CN = *.pmdgroup.az
+[ req_ext ]
+subjectAltName = @alt_names
+[ alt_names ]
+DNS.1 = *.domain.az
+EOF
+)
+
+
+Second Step: to generate decrypted key file.
+
+
+
+
+
+openssl rsa -in wildcard.somain.key -out wildcard.domain.az.key
