@@ -1,0 +1,21 @@
+      sudo apt-get update -y
+      sudo add-apt-repository universe
+      cd /opt/
+      wget https://packages.ntop.org/apt-stable/20.04/all/apt-ntop-stable.deb
+      apt install ./apt-ntop-stable.deb
+      apt-get clean all
+      apt-get update
+     apt-get install pfring-dkms nprobe ntopng n2disk cento
+
+ vim /etc/ntopng/ntopng.conf
+
+--------------------------
+-G=/var/run/ntopng.pid
+-i=ens160
+--https-port=443
+--http-port=0
+--------------------------
+
+Move .pem files to /usr/share/ntopng/httpdocs/ssl folder. Name as.  ntopng-cert.pem
+systemctl restart ntopng
+
