@@ -11,11 +11,24 @@
 
 --------------------------
 -G=/var/run/ntopng.pid
--i=ens160
+-i="tcp://127.0.0.1:5556"
 --https-port=443
 --http-port=0
 --------------------------
 
 Move .pem files to /usr/share/ntopng/httpdocs/ssl folder. Name as.  ntopng-cert.pem
 systemctl restart ntopng
+
+vim /etc/nprobe/nprobe.conf
+
+----------------------------
+
+-i=none
+--zmq=tcp://127.0.0.1:5556
+--collector-port=2055
+-T=@NTOPNG@
+
+---------------------------
+
+
 
