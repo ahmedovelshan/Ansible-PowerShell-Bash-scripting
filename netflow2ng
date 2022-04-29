@@ -30,3 +30,11 @@ crontab -e
 
 @reboot /opt/netflow2ng/dist/netflow2ng
 
+
+
+LINKS
+
+https://linuxhint.com/install-go-ubuntu-2/
+https://go.dev/dl/
+https://github.com/synfinatic/netflow2ng
+https://stackoverflow.com/questions/12973777/how-to-run-a-shell-script-at-startup
