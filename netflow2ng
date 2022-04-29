@@ -26,4 +26,7 @@ apt install libzmq5
 make
 
 
+crontab -e
+
+@reboot /opt/netflow2ng/dist/netflow2ng
 
