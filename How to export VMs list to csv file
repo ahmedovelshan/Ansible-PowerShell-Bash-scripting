@@ -1,0 +1,22 @@
+$report = @()
+foreach($vm in (Get-VM | Where-Object { $_.Folder -notlike 'CUCM' -and $_.Folder -notlike 'VMware HCIA Folder' -and $_.Folder -notlike 'TEMPLATES' -and $_.Folder -notlike 'Test' -and $_.Folder -notlike 'OFFLINE VM'})){
+
+$row = "" | Select name, status, role, cluster, tenant, platform, vcpus, memory, disk, comments, IPAddress, PortGroup
+$row.name = $VM.Name
+$row.status = "Active"
+$row.role = "Virtual Machine"
+$row.cluster = "pt-bmdc-vxrcls"
+$row.comments = ""
+$row.memory = $VM.MemoryGB
+$row.vcpus = $VM.NumCPU
+$row.tenant = $VM.Folder
+$row.disk = (Get-HardDisk -vm $vm).CapacityGB | Measure-Object -sum | Select -ExpandProperty Sum
+$row.IPAddress = (Get-VM -Name $vm).guest.ipaddress[0] + " " + (Get-VM -Name $vm).guest.ipaddress[1] + " " + (Get-VM -Name $vm).guest.ipaddress[2]
+$row.platform = (Get-VM -Name $vm).guest.osfullname
+$row.PortGroup = (Get-NetworkAdapter -VM $VM.Name).NetworkName
+$report += $row
+
+}
+
+
+$report | Export-Csv -Path C:\report\VMDisk-CapacityReport.csv -NoTypeInformation -UseCulture
