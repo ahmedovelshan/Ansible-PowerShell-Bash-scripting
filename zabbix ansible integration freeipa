@@ -1,3 +1,12 @@
+Install zabbix on control node
+ansible-galaxy collection install community.zabbix
+sudo pip3 zabbix-api
+sudo pip3 install zabbix-api
+sudo pip3 install zabbix_api
+sudo pip3 install pyzabbix
+
+
+
 cat > zabbix.yml 
 
 ---
