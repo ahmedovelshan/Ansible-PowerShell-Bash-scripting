@@ -10,8 +10,18 @@ sudo pip3 install pyzabbix
 cat > zabbix.yml 
 
 ---
-- name: Create a new linux or windows host or update an existing host's info
-  hosts:  localhost
+- name: Installation and configuration zabbix agent
+  hosts: linux
+  roles:
+    - role: community.zabbix.zabbix_agent
+      zabbix_agent_server: 10.220.55.5
+      zabbix_agent_serveractive:  10.220.55.5
+      zabbix_agent_host_state: present
+
+
+
+- name: Create linux hosts in zabbix server
+  hosts: localhost
   vars_files:
     - /home/ansible/hosts.yml
     - /home/ansible/secret.yml
@@ -44,6 +54,7 @@ cat > zabbix.yml
 
 
 ...
+
 
 __________________________
 cat hosts.yml
