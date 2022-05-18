@@ -17,7 +17,7 @@ cat > zabbix.yml
       zabbix_agent_server: 10.220.55.5
       zabbix_agent_serveractive:  10.220.55.5
       zabbix_agent_host_state: present
-
+      zabbix_agent_dont_detect_ip: True
 
 
 - name: Create linux hosts in zabbix server
