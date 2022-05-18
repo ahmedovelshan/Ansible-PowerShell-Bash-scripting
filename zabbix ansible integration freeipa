@@ -11,7 +11,7 @@ cat > zabbix.yml
 
 ---
 - name: Create a new linux or windows host or update an existing host's info
-  hosts:  zabbix.pasha-technology.net
+  hosts:  localhost
   vars_files:
     - /home/ansible/hosts.yml
     - /home/ansible/secret.yml
@@ -19,6 +19,7 @@ cat > zabbix.yml
   - name: Create a new host or update an existing host's info
     local_action:
       module: community.zabbix.zabbix_host
+      validate_certs: no
       server_url: https://zabbix.pasha-technology.net/
       login_user: "{{ username }}"
       login_password: "{{ password }}"
@@ -34,15 +35,15 @@ cat > zabbix.yml
       interfaces:
         - type: 1
           main: 1
+          useip: 1
           ip: "{{ item.ip }}"
           port: 10050
+          dns: ""
     loop: "{{ hosts }}"
 
 
 
 ...
-
-
 
 __________________________
 cat hosts.yml
