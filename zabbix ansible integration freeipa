@@ -52,3 +52,30 @@ hosts:
     template: Linux by Zabbix agent
     ip: 10.220.56.52
 
+
+_____________________________________________________
+
+cat > freeipa.yml
+
+
+---
+- name: configuration freeipa client
+  hosts: ansible1
+  tasks:
+    - name: install ipa-client package
+      package:
+        name: ipa-client
+        state: present
+    - name: add line to hosts file
+      lineinfile:
+        path: /etc/hosts
+        line: 10.220.55.151 pt-bmdc-ipa1.id.pasha-technology.net
+    - name: join vm to freeipa
+      shell: sudo ipa-client-install --hostname=`hostname -f` --mkhomedir --server=pt-bmdc-ipa1.id.pasha-technology.net --domain id.pasha-technology.net --realm ID.PASHA-TECHNOLOGY.NET -p admin -w ******** -U
+
+
+
+
+
+
+
