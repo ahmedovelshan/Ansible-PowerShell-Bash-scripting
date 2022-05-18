@@ -1,0 +1,54 @@
+cat > zabbix.yml 
+
+---
+- name: Create a new linux or windows host or update an existing host's info
+  hosts:  zabbix.pasha-technology.net
+  vars_files:
+    - /home/ansible/hosts.yml
+    - /home/ansible/secret.yml
+  tasks:
+  - name: Create a new host or update an existing host's info
+    local_action:
+      module: community.zabbix.zabbix_host
+      server_url: https://zabbix.pasha-technology.net/
+      login_user: "{{ username }}"
+      login_password: "{{ password }}"
+      host_name: "{{ item.hostname }}"
+      visible_name: "{{ item.visible_name }}"
+      description: "{{ item.description }}"
+      host_groups:
+        - "{{ item.group }}"
+      link_templates:
+        - "{{ item.template }}"
+      status: enabled
+      state: present
+      interfaces:
+        - type: 1
+          main: 1
+          ip: "{{ item.ip }}"
+          port: 10050
+    loop: "{{ hosts }}"
+
+
+
+...
+
+
+
+__________________________
+cat hosts.yml
+
+hosts:
+  - hostname: ansible1
+    visible_name: ansible1
+    description: Test server
+    group: Linux servers
+    template: Linux by Zabbix agent
+    ip: 10.220.56.51
+  - hostname: ansible2
+    visible_name: ansible2
+    description:  Test server 2
+    group:  Linux servers
+    template: Linux by Zabbix agent
+    ip: 10.220.56.52
+
