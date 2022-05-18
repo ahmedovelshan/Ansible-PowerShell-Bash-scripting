@@ -9,6 +9,7 @@ sudo pip3 install pyzabbix
 
 cat > zabbix.yml 
 
+
 ---
 - name: Installation and configuration zabbix agent
   hosts: linux
@@ -18,6 +19,19 @@ cat > zabbix.yml
       zabbix_agent_serveractive:  10.220.55.5
       zabbix_agent_host_state: present
       zabbix_agent_dont_detect_ip: True
+  tasks:
+    - name: Open firewall port
+      firewalld:
+        zone: public
+        service: zabbix-agent
+        permanent: yes
+        state: enabled
+        immediate: yes
+    - name: Restart zabbix agent service
+      service:
+        name: zabbix-agent.service
+        state: restarted
+
 
 
 - name: Create linux hosts in zabbix server
@@ -54,6 +68,7 @@ cat > zabbix.yml
 
 
 ...
+
 
 
 __________________________
