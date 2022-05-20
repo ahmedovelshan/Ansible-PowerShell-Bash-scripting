@@ -1,5 +1,6 @@
 Install zabbix on control node
 ansible-galaxy collection install community.zabbix
+ansible-galaxy collection install freeipa.ansible_freeipa
 sudo pip3 zabbix-api
 sudo pip3 install zabbix-api
 sudo pip3 install zabbix_api
