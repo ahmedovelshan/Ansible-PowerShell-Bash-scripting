@@ -10,16 +10,32 @@ sudo pip3 install pyzabbix
 
 cat > zabbix.yml 
 
-
 ---
 - name: Installation and configuration zabbix agent
   hosts: linux
+  vars:
+    supported_os_1:
+      - OracleLinux
+    supported_os_2:
+      - Ubuntu
+  vars_files:
+    - /home/ansible/secret.yml
   roles:
     - role: community.zabbix.zabbix_agent
       zabbix_agent_server: 10.220.55.5
       zabbix_agent_serveractive:  10.220.55.5
       zabbix_agent_host_state: present
       zabbix_agent_dont_detect_ip: True
+    - role: freeipa.ansible_freeipa.ipaclient
+      state: present
+      ipaadmin_principal: "{{ ipa_admin }}"
+      ipaadmin_password: "{{ ipa_password }}"
+      ipaclient_force_ntpd: false
+      ipaclient_domain: id.pasha-technology.net
+      ipaclient_realm: ID.PASHA-TECHNOLOGY.NET
+      ipaclient_servers: pt-bmdc-ipa1.id.pasha-technology.net, pt-bmdc-ipa2.id.pasha-technology.net
+      ipaclient_force_join: yes
+      ipaclient_mkhomedir: yes
   tasks:
     - name: Open firewall port
       firewalld:
@@ -28,13 +44,17 @@ cat > zabbix.yml
         permanent: yes
         state: enabled
         immediate: yes
+      when: ansible_distribution in supported_os_1
+    - name: Open ufw port
+      ufw:
+        rule: allow
+        port: 10050
+        proto: tcp
+      when: ansible_distribution in supported_os_2
     - name: Restart zabbix agent service
       service:
         name: zabbix-agent.service
         state: restarted
-
-
-
 - name: Create linux hosts in zabbix server
   hosts: localhost
   vars_files:
