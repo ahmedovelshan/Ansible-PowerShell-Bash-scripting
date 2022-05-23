@@ -18,6 +18,19 @@ cat > zabbix.yml
       - OracleLinux
     supported_os_2:
       - Ubuntu
+    timesync_ntp_servers:
+      - hostname: 10.220.55.9
+        pool: yes
+        hostname: 10.220.55.10
+        pool: yes
+    ipaadmin_principal: "{{ ipa_admin }}"
+    ipaadmin_password: "{{ ipa_password }}"
+    ipaclient_force_ntpd: false
+    ipaclient_domain: id.pasha-technology.net
+    ipaclient_realm: ID.PASHA-TECHNOLOGY.NET
+    ipaclient_servers: pt-bmdc-ipa1.id.pasha-technology.net, pt-bmdc-ipa2.id.pasha-technology.net
+    ipaclient_force_join: yes
+    ipaclient_mkhomedir: yes
   vars_files:
     - /home/ansible/secret.yml
   roles:
@@ -26,35 +39,64 @@ cat > zabbix.yml
       zabbix_agent_serveractive:  10.220.55.5
       zabbix_agent_host_state: present
       zabbix_agent_dont_detect_ip: True
-    - role: freeipa.ansible_freeipa.ipaclient
-      state: present
-      ipaadmin_principal: "{{ ipa_admin }}"
-      ipaadmin_password: "{{ ipa_password }}"
-      ipaclient_force_ntpd: false
-      ipaclient_domain: id.pasha-technology.net
-      ipaclient_realm: ID.PASHA-TECHNOLOGY.NET
-      ipaclient_servers: pt-bmdc-ipa1.id.pasha-technology.net, pt-bmdc-ipa2.id.pasha-technology.net
-      ipaclient_force_join: yes
-      ipaclient_mkhomedir: yes
   tasks:
-    - name: Open firewall port
-      firewalld:
-        zone: public
-        service: zabbix-agent
-        permanent: yes
-        state: enabled
-        immediate: yes
+    - name: Configuation for supported_os_2
+      block:
+        - name: Open ufw port
+          ufw:
+            rule: allow
+            port: 10050
+            proto: tcp
+        - name: Install necessery packate
+          apt:
+            name:
+              - chrony
+            state: present
+        - name: Add local NTP servers
+          blockinfile:
+            path: /etc/chrony/chrony.conf
+            block: |
+              server 10.220.55.9
+              server 10.220.55.10
+        - name: Restart necessery services
+          service:
+            name: "{{ item }}"
+            state: restarted
+          loop:
+            - chronyd
+            - zabbix-agent
+        when: ansible_distribution in supported_os_2
+    - name: Configuration for supported_os_1
+      block:
+      - name: Open firewall port
+        firewalld:
+          zone: public
+          service: zabbix-agent
+          permanent: yes
+          state: enabled
+          immediate: yes
+      - name: Restart zabbix agent service
+        service:
+          name: zabbix-agent.service
+          state: restarted
+      - name: Configure NTP server
+        include_role:
+          name: rhel-system-roles.timesync
       when: ansible_distribution in supported_os_1
-    - name: Open ufw port
-      ufw:
-        rule: allow
-        port: 10050
-        proto: tcp
-      when: ansible_distribution in supported_os_2
-    - name: Restart zabbix agent service
-      service:
-        name: zabbix-agent.service
-        state: restarted
+
+    - name: Configuration Freeipa clinet
+      block:
+      - name: Add A records to HOSTS file
+        blockinfile:
+          path: /etc/hosts
+          block: |
+            10.220.55.5 zabbix.pasha-technology.net
+            10.220.55.151 pt-bmdc-ipa1.id.pasha-technology.net
+            10.220.55.151 pt-bmdc-ipa2.id.pasha-technology.net
+      - name: install and configure free-ipa-client
+        include_role:
+          name: freeipa.ansible_freeipa.ipaclient
+
 - name: Create linux hosts in zabbix server
   hosts: localhost
   vars_files:
@@ -84,8 +126,8 @@ cat > zabbix.yml
           ip: "{{ item.ip }}"
           port: 10050
           dns: ""
-    loop: "{{ hosts }}"
-
+    loop: "{{ hosts }}" 
+      
 
 
 ...
